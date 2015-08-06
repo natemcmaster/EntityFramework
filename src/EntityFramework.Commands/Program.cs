@@ -132,7 +132,7 @@ namespace Microsoft.Data.Entity.Commands
                                 "The provider to use. For example, EntityFramework.SqlServer");
                             scaffold.HelpOption("-?|-h|--help");
                             scaffold.OnExecute(
-                                async () =>
+                                () =>
                                 {
                                     if (string.IsNullOrEmpty(connection.Value))
                                     {
@@ -149,10 +149,9 @@ namespace Microsoft.Data.Entity.Commands
                                         return 1;
                                     }
 
-                                    await ReverseEngineerAsync(
+                                    ReverseEngineer(
                                         connection.Value,
-                                        provider.Value,
-                                        _applicationShutdown.ShutdownRequested);
+                                        provider.Value);
 
                                     return 0;
                                 });
@@ -403,12 +402,11 @@ namespace Microsoft.Data.Entity.Commands
                 () => _migrationTool.RemoveMigration(context, startupProject, _rootNamespace, _projectDir));
         }
 
-        public virtual async Task ReverseEngineerAsync(
+        public virtual void ReverseEngineer(
             [NotNull] string connectionString,
-            [NotNull] string providerAssemblyName,
-            CancellationToken cancellationToken = default(CancellationToken))
+            [NotNull] string providerAssemblyName)
         {
-            await _databaseTool.ReverseEngineerAsync(
+            _databaseTool.ReverseEngineer(
                 providerAssemblyName, connectionString, _rootNamespace, _projectDir);
 
             _logger.LogInformation("Done");

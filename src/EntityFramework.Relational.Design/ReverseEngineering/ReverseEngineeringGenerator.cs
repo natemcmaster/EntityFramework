@@ -6,8 +6,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Relational.Design.CodeGeneration;
@@ -53,13 +51,10 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public virtual ITemplating Templating { get; }
 
-        public virtual async Task<IReadOnlyList<string>> GenerateAsync(
-            [NotNull] ReverseEngineeringConfiguration configuration,
-            CancellationToken cancellationToken = default(CancellationToken))
+        public virtual IReadOnlyList<string> Generate(
+            [NotNull] ReverseEngineeringConfiguration configuration)
         {
             Check.NotNull(configuration, nameof(configuration));
-
-            cancellationToken.ThrowIfCancellationRequested();
 
             CheckConfiguration(configuration);
 
@@ -84,8 +79,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
             var dbContextTemplate = LoadTemplate(configuration.CustomTemplatePath,
                     GetDbContextTemplateFileName(provider), () => provider.DbContextTemplate);
-            var templateResult = await Templating.RunTemplateAsync(
-                dbContextTemplate, dbContextGeneratorModel, provider, cancellationToken);
+            var templateResult = Templating.RunTemplate(dbContextTemplate, dbContextGeneratorModel);
             if (templateResult.ProcessingException != null)
             {
                 throw new InvalidOperationException(
@@ -112,8 +106,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
                 var entityTypeCodeGeneratorHelper = provider.EntityTypeCodeGeneratorHelper(entityTypeGeneratorModel);
                 entityTypeGeneratorModel.Helper = entityTypeCodeGeneratorHelper;
 
-                templateResult = await Templating.RunTemplateAsync(
-                    entityTypeTemplate, entityTypeGeneratorModel, provider, cancellationToken);
+                templateResult = Templating.RunTemplate(entityTypeTemplate, entityTypeGeneratorModel);
                 if (templateResult.ProcessingException != null)
                 {
                     throw new InvalidOperationException(

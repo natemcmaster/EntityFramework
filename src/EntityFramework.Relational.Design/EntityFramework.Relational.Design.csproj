@@ -87,8 +87,7 @@
     <Compile Include="Templating\Compilation\RoslynCompilationService.cs" />
     <Compile Include="Templating\ITemplating.cs" />
     <Compile Include="Templating\RazorReverseEngineeringBase.cs" />
-    <Compile Include="Templating\RazorTemplating.cs" />
-    <Compile Include="Templating\RazorTemplatingHost.cs" />
+    <Compile Include="Templating\MustacheTemplating.cs" />
     <Compile Include="Templating\TemplateProcessingException.cs" />
     <Compile Include="Templating\TemplateResult.cs" />
     <Compile Include="Utilities\ModelUtilities.cs" />
@@ -103,11 +102,11 @@
       <LastGenOutput>Resources.cs</LastGenOutput>
     </Content>
     <None Include="project.json" />
-    <EmbeddedResource Include="ReverseEngineering\Templates\DbContextTemplate.cshtml">
-      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.DbContextTemplate.cshtml</LogicalName>
+    <EmbeddedResource Include="ReverseEngineering\Templates\DbContextTemplate.mustache">
+      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.DbContextTemplate.mustache</LogicalName>
     </EmbeddedResource>
-    <EmbeddedResource Include="ReverseEngineering\Templates\EntityTypeTemplate.cshtml">
-      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.EntityTypeTemplate.cshtml</LogicalName>
+    <EmbeddedResource Include="ReverseEngineering\Templates\EntityTypeTemplate.mustache">
+      <LogicalName>EntityFramework.Relational.Design.ReverseEngineering.Templates.EntityTypeTemplate.mustache</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

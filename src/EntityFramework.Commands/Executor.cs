@@ -262,17 +262,15 @@ namespace Microsoft.Data.Entity.Commands
                 var connectionString = (string)args["connectionString"];
                 var providerAssemblyName = (string)args["provider"];
 
-                Execute(() => executor.ReverseEngineerImplAsync(providerAssemblyName, connectionString).GetAwaiter().GetResult());
+                Execute(() => executor.ReverseEngineerImpl(providerAssemblyName, connectionString));
             }
         }
 
-        public virtual Task<IReadOnlyList<string>> ReverseEngineerImplAsync(
+        public virtual IReadOnlyList<string> ReverseEngineerImpl(
             [NotNull] string providerAssemblyName,
-            [NotNull] string connectionString,
-            CancellationToken cancellationToken = default(CancellationToken))
+            [NotNull] string connectionString)
         {
-            return CreateDatabaseTool().ReverseEngineerAsync(
-                providerAssemblyName, connectionString, _rootNamespace, _projectDir, cancellationToken);
+            return CreateDatabaseTool().ReverseEngineer(providerAssemblyName, connectionString, _rootNamespace, _projectDir);
         }
 
         public class CustomizeReverseEngineer : OperationBase

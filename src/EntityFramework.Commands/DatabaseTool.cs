@@ -34,12 +34,11 @@ namespace Microsoft.Data.Entity.Commands
             _loggerProvider = loggerProvider;
         }
 
-        public virtual Task<IReadOnlyList<string>> ReverseEngineerAsync(
+        public virtual IReadOnlyList<string> ReverseEngineer(
             [NotNull] string runtimeProviderAssemblyName,
             [NotNull] string connectionString,
             [NotNull] string rootNamespace,
-            [NotNull] string projectDir,
-            CancellationToken cancellationToken = default(CancellationToken))
+            [NotNull] string projectDir)
         {
             Check.NotEmpty(runtimeProviderAssemblyName, nameof(runtimeProviderAssemblyName));
             Check.NotEmpty(connectionString, nameof(connectionString));
@@ -63,7 +62,7 @@ namespace Microsoft.Data.Entity.Commands
                 OutputPath = projectDir
             };
 
-            return generator.GenerateAsync(configuration, cancellationToken);
+            return generator.Generate(configuration);
         }
 
         public virtual IReadOnlyList<string> CustomizeReverseEngineer(
