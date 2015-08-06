@@ -18,7 +18,7 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
             serviceCollection.AddScoped<ModelUtilities, ModelUtilities>();
             serviceCollection.AddScoped<ICompilationService, RoslynCompilationService>();
             serviceCollection.AddScoped<MetadataReferencesProvider, MetadataReferencesProvider>();
-            serviceCollection.AddScoped<ITemplating, RazorTemplating>();
+            serviceCollection.AddScoped<ITemplating, MustacheTemplating>();
             serviceCollection.AddScoped<ReverseEngineeringGenerator, ReverseEngineeringGenerator>();
         }
     }

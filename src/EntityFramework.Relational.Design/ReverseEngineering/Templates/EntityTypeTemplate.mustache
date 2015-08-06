@@ -1,0 +1,28 @@
+﻿{{Helper.ErrorMessageAnnotation}}
+
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace {{Namespace}}
+{
+    public class {{EntityType.Name}}
+    {
+        public {{EntityType.Name}}()
+        {
+            {{#each Helper.NavPropInitializers}}
+                {{ NavigationPropertyName }} = new HashSet<{{PrincipalEntityTypeName}}>();
+            {{/each}}
+        }
+   
+        {{#each Helper.OrderedEntityProperties}}
+        public {{ClrType}} {{Name}} { get; set; }
+        {{/each}}
+
+
+        {{#each Helper.NavigationProperties}}
+        public virtual {{Type}} {{Name}} { get; set; }
+        {{/each}}
+    }
+}

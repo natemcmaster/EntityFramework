@@ -10,5 +10,17 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
     {
         public virtual IModel MetadataModel { get; [param: NotNull] set; }
         public virtual DbContextCodeGeneratorHelper Helper { get; [param: NotNull] set; }
+        public override string ClassName
+        {
+            get
+            {
+                return base.ClassName ?? Helper.ClassName(ConnectionString);
+            }
+
+            set
+            {
+                base.ClassName = value;
+            }
+        }
     }
 }

@@ -18,8 +18,8 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 {
     public class ReverseEngineeringGenerator
     {
-        public const string DbContextTemplateFileName = "DbContextTemplate.cshtml";
-        public const string EntityTypeTemplateFileName = "EntityTypeTemplate.cshtml";
+        public const string DbContextTemplateFileName = "DbContextTemplate.mustache";
+        public const string EntityTypeTemplateFileName = "EntityTypeTemplate.mustache";
         private const string DefaultFileExtension = ".cs";
 
         public ReverseEngineeringGenerator([NotNull] ILogger logger, [NotNull] IFileService fileService,

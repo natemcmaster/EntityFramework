@@ -9,10 +9,10 @@
     "warningsAsErrors": true
   },
   "dependencies": {
-    "Microsoft.AspNet.Razor": "4.0.0-*",
     "Microsoft.CodeAnalysis.CSharp": "2.0.0-beta1-*",
     "System.Reflection.Metadata": "1.1.0-alpha-*",
-    "EntityFramework.Relational": "7.0.0-*"
+    "EntityFramework.Relational": "7.0.0-*",
+    "mustache-sharp": "0.3.0"
   },
   "compile": "..\\Shared\\*.cs",
   "namedResource": {

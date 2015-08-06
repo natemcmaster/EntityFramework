@@ -1,0 +1,35 @@
+using Microsoft.Data.Entity;
+using Microsoft.Data.Entity.Metadata;
+
+namespace {{Namespace}}
+{
+    public partial class {{ClassName}} : DbContext
+    {
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            options.UseSqlServer(@"{{ConnectionString}}");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            {{#each Helper.EntityConfigurations}}
+            modelBuilder.Entity<{{EntityType.Name}}>(entity => 
+                {
+                    {{#each FacetConfigurations}}
+                    entity.{{this}};
+                    {{/each}}
+                    {{#each PropertyConfigurations}}
+                    entity.Property(e => e.{{Property.Name}}){{this}};
+                    {{/each}}
+
+                    {{#each RelationshipConfigurations}}
+                    entity.{{this}};
+                    {{/each}}
+                });
+            {{/each}}
+        }
+        {{#each Helper.EntityConfigurations}}
+        public virtual DbSet<{{EntityType.Name}}> {{EntityType.Name}} { get; set; }
+        {{/each}}
+    }
+}

@@ -86,7 +86,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
                     OutputPath = TestOutputDir
                 };
 
-            var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+            var filePaths = Generator.Generate(configuration);
 
             var actualFileSet = new FileSet(InMemoryFiles, TestOutputDir)
                 {
@@ -130,7 +130,7 @@ namespace Microsoft.Data.Entity.SqlServer.Design.FunctionalTests.ReverseEngineer
             InMemoryFiles.OutputFile(CustomizedTemplateDir, ProviderDbContextTemplateName, "DbContext template");
             InMemoryFiles.OutputFile(CustomizedTemplateDir, ProviderEntityTypeTemplateName, "EntityType template");
 
-            var filePaths = Generator.GenerateAsync(configuration).GetAwaiter().GetResult();
+            var filePaths = Generator.Generate(configuration);
 
             AssertLog(new LoggerMessages
                 {

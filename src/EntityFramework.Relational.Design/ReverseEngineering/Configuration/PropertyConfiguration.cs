@@ -1,7 +1,9 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using Microsoft.Data.Entity.Metadata;
 using Microsoft.Data.Entity.Utilities;
@@ -36,6 +38,45 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering.Configurati
                 FacetConfigurations.Add(@for, listOfFacetMethodBodies);
             }
             listOfFacetMethodBodies.Add(facetConfiguration.MethodBody);
+        }
+
+        //definitely not hte right place for this
+        public override string ToString()
+        {
+            var propertyLambdaIdentifier = "property";
+            var indent = "    ";
+            var lines = new List<string>();
+            var facetCount = FacetConfigurations.Values.SelectMany(list => list).Count();
+            foreach (var keyValuePair in FacetConfigurations)
+            {
+                var forMethod = keyValuePair.Key;
+                var methodBodyList = keyValuePair.Value;
+                if (string.IsNullOrEmpty(forMethod))
+                {
+                    foreach (var methodBody in methodBodyList)
+                    {
+                        lines.Add("." + methodBody);
+                    }
+                }
+                else
+                {
+                    if (methodBodyList.Count() == 1)
+                    {
+                        lines.Add("." + forMethod + "()." + methodBodyList.First());
+                    }
+                    else
+                    {
+                        lines.Add("." + forMethod + "(" + propertyLambdaIdentifier + " =>");
+                        lines.Add("{");
+                        foreach (var methodBody in methodBodyList)
+                        {
+                            lines.Add(indent + propertyLambdaIdentifier + "." + methodBody + ";");
+                        }
+                        lines.Add("})");
+                    }
+                }
+            }
+            return string.Join(Environment.NewLine,lines);
         }
     }
 }

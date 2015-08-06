@@ -34,11 +34,11 @@ namespace Microsoft.Data.Entity.Relational.Design.ReverseEngineering
 
         public static readonly string DbContextTemplateResourceName =
             typeof(ReverseEngineeringMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
-            + ".ReverseEngineering.Templates.DbContextTemplate.cshtml";
+            + ".ReverseEngineering.Templates.DbContextTemplate.mustache";
 
         public static readonly string EntityTypeTemplateResourceName =
             typeof(ReverseEngineeringMetadataModelProvider).GetTypeInfo().Assembly.GetName().Name
-            + ".ReverseEngineering.Templates.EntityTypeTemplate.cshtml";
+            + ".ReverseEngineering.Templates.EntityTypeTemplate.mustache";
 
         private readonly Dictionary<EntityType, EntityType> _relationalToCodeGenEntityTypeMap =
             new Dictionary<EntityType, EntityType>();
