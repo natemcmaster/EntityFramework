@@ -307,7 +307,8 @@ WHERE t.name <> '" + HistoryRepository.DefaultTableName + "'";
     i.is_unique,
     c.name AS [column_name],
     i.type_desc,
-    ic.key_ordinal
+    ic.key_ordinal,
+    ic.is_descending_key
 FROM sys.indexes i
     INNER JOIN sys.index_columns ic  ON i.object_id = ic.object_id AND i.index_id = ic.index_id
     INNER JOIN sys.columns c ON ic.object_id = c.object_id AND c.column_id = ic.column_id
@@ -360,6 +361,7 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
 
                     var columnName = reader.GetStringOrNull(4);
                     var indexOrdinal = reader.GetByte(6);
+                    var isDescending = reader.GetBoolean(7);
 
                     ColumnModel column = null;
                     if (string.IsNullOrEmpty(columnName))
@@ -380,7 +382,8 @@ ORDER BY object_schema_name(i.object_id), object_name(i.object_id), i.name, ic.k
                         {
                             Index = index,
                             Column = column,
-                            Ordinal = indexOrdinal
+                            Ordinal = indexOrdinal,
+                            SortOrder = isDescending ? Metadata.SortOrder.Descending : Metadata.SortOrder.Ascending
                         };
 
                         index.IndexColumns.Add(indexColumn);

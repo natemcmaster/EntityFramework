@@ -156,16 +156,22 @@ namespace Microsoft.Data.Entity.Scaffolding
             Origin,
             Partial
         }
-
-        private enum IndexInfoColumns
+        public virtual bool SupportsIndexSortOrder
         {
-            Seqno,
-            Cid,
-            Name
+            get
+            {
+                Version libVersion;
+                return Version.TryParse(_connection.ServerVersion, out libVersion)
+                                            && libVersion >= new Version("3.8.9");
+            }
         }
 
         private void GetIndexes()
         {
+            var indexInfoStrategy = SupportsIndexSortOrder
+                                    ? new IndexXinfoStrategy(this)
+                                    : new IndexInfoStrategy(this);
+
             foreach (var table in _databaseModel.Tables)
             {
                 var indexInfo = _connection.CreateCommand();
@@ -187,32 +193,7 @@ namespace Microsoft.Data.Entity.Scaffolding
 
                 foreach (var index in table.Indexes)
                 {
-                    var indexColumns = _connection.CreateCommand();
-                    indexColumns.CommandText = $"PRAGMA index_info(\"{index.Name.Replace("\"", "\"\"")}\");";
-
-                    index.IndexColumns = new List<IndexColumnModel>();
-                    using (var reader = indexColumns.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var columnName = reader.GetValue((int)IndexInfoColumns.Name) as string;
-                            if (string.IsNullOrEmpty(columnName))
-                            {
-                                continue;
-                            }
-
-                            var indexOrdinal = reader.GetInt32((int)IndexInfoColumns.Seqno);
-                            var column = _tableColumns[ColumnKey(index.Table, columnName)];
-
-                            var indexColumn = new IndexColumnModel
-                            {
-                                Ordinal = indexOrdinal,
-                                Column = column
-                            };
-
-                            index.IndexColumns.Add(indexColumn);
-                        }
-                    }
+                    indexInfoStrategy.GetIndexInfo(index);
                 }
             }
         }
@@ -311,6 +292,105 @@ namespace Microsoft.Data.Entity.Scaffolding
 
                 default:
                     return null;
+            }
+        }
+
+        // for SQLite >= 3.8.9
+        private class IndexXinfoStrategy : IndexInfoStrategy
+        {
+            private enum Columns
+            {
+                Seqno,
+                Cid,
+                Name,
+                Desc,
+                Coll,
+                Key
+            }
+
+            public IndexXinfoStrategy(SqliteDatabaseModelFactory context)
+            : base(context)
+            { }
+
+            protected override string StatementName => "index_xinfo";
+
+            protected override IndexColumnModel Create(SqliteDataReader reader, IndexModel index)
+            {
+                var columnName = reader.GetValue((int)Columns.Name) as string;
+
+                if (string.IsNullOrEmpty(columnName))
+                {
+                    return null;
+                }
+
+                var isDescending = reader.GetBoolean((int)Columns.Desc);
+                var indexOrdinal = reader.GetInt32((int)Columns.Seqno);
+
+                var column = Context._tableColumns[ColumnKey(index.Table, columnName)];
+
+                return new IndexColumnModel
+                {
+                    Ordinal = indexOrdinal,
+                    Column = column,
+                    SortOrder = isDescending ? SortOrder.Descending : SortOrder.Ascending
+                };
+            }
+        }
+
+        // for SQLite < 3.8.9
+        private class IndexInfoStrategy
+        {
+            private enum Columns
+            {
+                Seqno,
+                Cid,
+                Name
+            }
+
+            protected SqliteDatabaseModelFactory Context { get; }
+
+            public IndexInfoStrategy(SqliteDatabaseModelFactory context)
+            {
+                Context = context;
+            }
+
+            protected virtual string StatementName => "index_info";
+
+            public virtual void GetIndexInfo(IndexModel index)
+            {
+                var indexColumns = Context._connection.CreateCommand();
+                indexColumns.CommandText = $"PRAGMA {StatementName}(\"{index.Name.Replace("\"", "\"\"")}\");";
+
+                index.IndexColumns = new List<IndexColumnModel>();
+                using (var reader = indexColumns.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var indexColumn = Create(reader, index);
+                        if (indexColumn != null)
+                        {
+                            index.IndexColumns.Add(indexColumn);
+                        }
+                    }
+                }
+            }
+
+            protected virtual IndexColumnModel Create(SqliteDataReader reader, IndexModel index)
+            {
+                var columnName = reader.GetValue((int)Columns.Name) as string;
+                if (string.IsNullOrEmpty(columnName))
+                {
+                    return null;
+                }
+
+                var indexOrdinal = reader.GetInt32((int)Columns.Seqno);
+                var column = Context._tableColumns[ColumnKey(index.Table, columnName)];
+
+                return new IndexColumnModel
+                {
+                    Ordinal = indexOrdinal,
+                    Column = column
+                };
             }
         }
     }

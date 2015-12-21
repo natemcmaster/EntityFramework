@@ -76,7 +76,7 @@ namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
         public void It_reads_indexes()
         {
             var sql = "CREATE TABLE Place ( Id int PRIMARY KEY, Name int UNIQUE, Location int);" +
-                      "CREATE INDEX IX_Location_Name ON Place (Location, Name);";
+                      "CREATE INDEX IX_Location_Name ON Place (Location DESC, Name);";
 
             var dbModel = CreateModel(sql);
 
@@ -94,6 +94,17 @@ namespace Microsoft.Data.Entity.Sqlite.Design.FunctionalTests
                     Assert.False(index.IsUnique);
                     Assert.Equal(new List<string> { "Location", "Name" }, index.IndexColumns.Select(ic => ic.Column.Name).ToList());
                     Assert.Equal(new List<int> { 0, 1 }, index.IndexColumns.Select(ic => ic.Ordinal).ToList());
+
+                    if (_factory.SupportsIndexSortOrder)
+                    {
+                        Assert.Equal(SortOrder.Descending, index.IndexColumns.First().SortOrder);
+                        Assert.Equal(SortOrder.Ascending, index.IndexColumns.Last().SortOrder);
+                    }
+                    else
+                    {
+                        Assert.All(index.IndexColumns, ic => Assert.Null(ic.SortOrder));
+                    }
+
                 },
                 pkIndex =>
                 {

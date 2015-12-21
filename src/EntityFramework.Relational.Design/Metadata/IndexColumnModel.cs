@@ -11,7 +11,6 @@ namespace Microsoft.Data.Entity.Scaffolding.Metadata
         public virtual int Ordinal { get; [param: NotNull] set; }
         public virtual ColumnModel Column { get; [param: NotNull] set; }
         public virtual IndexModel Index { get; [param: NotNull] set; }
-
-        // TODO index column sorting. See https://github.com/aspnet/EntityFramework/issues/4150
+        public virtual SortOrder? SortOrder { get; [param: CanBeNull] set; }
     }
 }

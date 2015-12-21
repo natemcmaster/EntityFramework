@@ -80,7 +80,7 @@ CREATE TABLE [dbo].[Denali] ( id int );";
         public void It_reads_indexes()
         {
             var sql = "CREATE TABLE Place ( Id int PRIMARY KEY NONCLUSTERED, Name int UNIQUE, Location int);" +
-                      "CREATE CLUSTERED INDEX IX_Location_Name ON Place (Location, Name);" +
+                      "CREATE CLUSTERED INDEX IX_Location_Name ON Place (Location DESC, Name);" +
                       "CREATE NONCLUSTERED INDEX IX_Location ON Place (Location);";
             var dbModel = CreateModel(sql, new TableSelectionSet(new List<string> { "Place" }));
 
@@ -106,6 +106,8 @@ CREATE TABLE [dbo].[Denali] ( id int );";
                         Assert.True(clusteredIndex.SqlServer().IsClustered);
                         Assert.Equal(new List<string> { "Location", "Name" }, clusteredIndex.IndexColumns.Select(ic => ic.Column.Name).ToList());
                         Assert.Equal(new List<int> { 1, 2 }, clusteredIndex.IndexColumns.Select(ic => ic.Ordinal).ToList());
+                        Assert.Equal(SortOrder.Descending, clusteredIndex.IndexColumns.Single(ic => ic.Ordinal == 1).SortOrder);
+                        Assert.Equal(SortOrder.Ascending, clusteredIndex.IndexColumns.Single(ic => ic.Ordinal == 2).SortOrder);
                     },
                 pkIndex =>
                 {
