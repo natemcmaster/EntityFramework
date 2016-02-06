@@ -18,13 +18,11 @@
         "xunit.runner.aspnet": "2.0.0-aspnet-*"
       }
     },
-    "dnx451": {
-      "dependencies": {
-        "xunit.runner.aspnet": "2.0.0-aspnet-*"
-      },
+    "net451": {
       "frameworkAssemblies": {
-        "System.Data": "",
-        "System.Reflection": ""
+        "System.Runtime": { "type": "build" },
+        "System.Data": { "type": "build" },
+        "System.Reflection": { "type": "build" }
       }
     }
   }
