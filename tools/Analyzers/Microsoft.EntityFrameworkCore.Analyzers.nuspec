@@ -1,0 +1,18 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>Microsoft.EntityFrameworkCore.Analyzers</id>
+    <version>1.0.0.0</version>
+    <authors>aspnet</authors>
+    <title>Microsoft.EntityFrameworkCore.Analyzers</title>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Internal tooling for EntityFrameworkCore</description>
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System" targetFramework="" />
+    </frameworkAssemblies>
+  </metadata>
+  <!-- The convention for analyzers is to put language agnostic dlls in analyzers\portable50 and language specific analyzers in either analyzers\portable50\cs or analyzers\portable50\vb -->
+  <files>
+    <file src="*.dll" target="analyzers\dotnet\cs" exclude="**\Microsoft.CodeAnalysis.*;**\System.Collections.Immutable.*;**\System.Reflection.Metadata.*;**\System.Composition.*" />
+  </files>
+</package>
