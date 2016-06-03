@@ -126,6 +126,7 @@
     <Compile Include="Metadata\Internal\KeyTest.cs" />
     <Compile Include="Metadata\Internal\MemberMapperTest.cs" />
     <Compile Include="Metadata\Internal\ModelTest.cs" />
+    <Compile Include="Metadata\Internal\ModelViewerTest.cs" />
     <Compile Include="Metadata\Internal\NavigationTest.cs" />
     <Compile Include="Metadata\Internal\PropertyTest.cs" />
     <Compile Include="Metadata\MetadataBuilderTest.cs" />
