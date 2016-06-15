@@ -184,6 +184,8 @@
     <Compile Include="TestUtilities\Xunit\SkipReasonTestCase.cs" />
     <Compile Include="TestUtilities\Xunit\SkipXunitTheoryTestCase.cs" />
     <Compile Include="TestUtilities\Xunit\TestPlatform.cs" />
+    <Compile Include="TestUtilities\Xunit\TravisMessageHandler.cs" />
+    <Compile Include="TestUtilities\Xunit\TravisReporter.cs" />
     <Compile Include="TestUtilities\Xunit\UseCultureAttribute.cs" />
     <Compile Include="ThrowingMonsterStateManager.cs" />
     <Compile Include="UpdatesFixtureBase.cs" />
