@@ -1,10 +1,10 @@
+sudo: required
 language: csharp
 dist: trusty
 os:
-  - linux
-  # - osx CoreCLR does not support OS X 10.9 (yet)
+- linux
 mono:
-  - beta
+- beta
 addons:
   apt:
     packages:
@@ -14,18 +14,25 @@ addons:
     - libssl-dev
     - libunwind8
     - zlib1g
+services:
+- docker
 branches:
   only:
-    - master
-    - release
-    - dev
-    - /^(.*\/)?ci-.*$/
-env: KOREBUILD_TEST_SKIPMONO=1
+  - master
+  - release
+  - dev
+  - "/^(.*\\/)?ci-.*$/"
 script:
-  - ./build.sh --quiet verify
+- "./build.sh --quiet verify"
 notifications:
   webhooks:
-    secure: "a2AoARlYhgHFj7Jec1TbcqNPi3oJziHVaVPScFGiBezfJvXu3+6c9amMAzK3ZSN0lxaYyBhmkIM8eE73VxLJo9T2Y28L0dwKQi1xaVuLXUf2XLMFjdP99MHPsFA32gFJNqSdvVCF637qkopkjz0xyxsFjf2vDe7PvQFX54/sYkk="
+    secure: a2AoARlYhgHFj7Jec1TbcqNPi3oJziHVaVPScFGiBezfJvXu3+6c9amMAzK3ZSN0lxaYyBhmkIM8eE73VxLJo9T2Y28L0dwKQi1xaVuLXUf2XLMFjdP99MHPsFA32gFJNqSdvVCF637qkopkjz0xyxsFjf2vDe7PvQFX54/sYkk=
   on_success: always
   on_failure: always
   on_start: always
+env:
+  global:
+  - secure: AXJ6w+JOqjPa8l1U9ukP4KHIgrpjzpV9gAHpkeNoq6596OKs+1ctveL2gDbpj4H4yyg6PdNULstOzZTRHvjNFJsC9zEgm1BU8cdu74wjvyvcATq6aFiJyyXY2DaIPHm5C/hw0bS0B+A2Pq6VHgMPMSNK25w5+lj26yafkfX0v28=
+  - secure: ePwnlz2b57nzVnOVYU4zlLOpixtZqNrv+l5QTBthtQ/UA3eQTcAKuYmf+lwhwrQ/9VRyRVE/H411c+Gd0vmkdK0rlf34jRfkiElxF+RnwDHGh6OYNc78UlhPOWj/3r1IT9hj6p/N36LlUym+kaf9AsY15tCVa85J59oumlFbPpc=
+  - secure: QMTrMQAzlf7Q/75v1huyRY/55w2f4LI3sGWPxHhP3jqdPJ55CblGj98orIZ9X7HX7ReOD4bmvPqucMk0X9dLc/ymFjAgHt9Uw3ad8WaLjk07LnFg/gpfqDn0xRHdFm3hE4mScSSRLt0wXmXKdFcE2ZhSzpNKX8GTfTtrxsWybgM=
+  - secure: VDVd1+gQX7uwCYtnF/D2hc4guDP8hi0hKcqKLe/lEoh3xmy1R2cXBAAAwn6hwJiTgnmeuvEzsgkY6TklR7Skc3uG3OkyOOP5B0h58dNdcyxnt0LKBnH37UBIMwOHuhUHSsk5ZLNgiB8q2Vz45gQT7CRYfKfgXK/DkaMvPKB5e20=
