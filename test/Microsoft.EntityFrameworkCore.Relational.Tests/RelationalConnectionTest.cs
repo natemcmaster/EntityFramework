@@ -6,6 +6,7 @@ using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal.Events;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvider;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -755,6 +756,72 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests
                     Assert.Throws<InvalidOperationException>(
                         () => connection.RollbackTransaction()).Message);
             }
+        }
+
+        [Fact]
+        public void Open_raises_event_only_for_new_connections()
+        {
+            var openedAsync = 0;
+            var opened = 0;
+
+            var options = CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" });
+            options = new DbContextOptionsBuilder((DbContextOptions)options)
+                .ConfigureEvents(b => b.OnConnectionOpened(e =>
+                {
+                    if (e.WasAsync)
+                    {
+                        opened++;
+                    }
+                    else
+                    {
+                        opened++;
+                    }
+                }))
+                .Options;
+
+            var connection = new FakeRelationalConnection(options);
+            connection.Open();
+            Assert.Equal(1, opened);
+            connection.Open();
+            Assert.Equal(1, opened);
+            connection.Close();
+            connection.Close();
+            connection.Open();
+            Assert.Equal(2, opened);
+            Assert.Equal(0, openedAsync);
+        }
+
+        [Fact]
+        public async Task OpenAsync_raises_event_only_for_new_connections()
+        {
+            var openCalled = 0;
+            var openAsyncCalled = 0;
+
+            var options = CreateOptions(new FakeRelationalOptionsExtension { ConnectionString = "Database=FrodoLives" });
+            options = new DbContextOptionsBuilder((DbContextOptions)options)
+                .ConfigureEvents(b => b.OnConnectionOpened(e =>
+                    {
+                        if (e.WasAsync)
+                        {
+                            openAsyncCalled++;
+                        }
+                        else
+                        {
+                            openAsyncCalled++;
+                        }
+                    }))
+                .Options;
+
+            var connection = new FakeRelationalConnection(options);
+            await connection.OpenAsync();
+            Assert.Equal(1, openAsyncCalled);
+            await connection.OpenAsync();
+            Assert.Equal(1, openAsyncCalled);
+            connection.Close();
+            connection.Close();
+            await connection.OpenAsync();
+            Assert.Equal(2, openAsyncCalled);
+            Assert.Equal(0, openCalled);
         }
 
         private static IDbContextOptions CreateOptions(params RelationalOptionsExtension[] optionsExtensions)

@@ -90,6 +90,7 @@
     <Compile Include="Infrastructure\AnnotatableTest.cs" />
     <Compile Include="Infrastructure\AnnotationTest.cs" />
     <Compile Include="Infrastructure\DbContextAttributeTest.cs" />
+    <Compile Include="Infrastructure\EventHandlerCollectionTest.cs" />
     <Compile Include="Infrastructure\LoggingModelValidatorTest.cs" />
     <Compile Include="Infrastructure\ModelValidatorTest.cs" />
     <Compile Include="Infrastructure\NonThrowingModelValidatorTest.cs" />

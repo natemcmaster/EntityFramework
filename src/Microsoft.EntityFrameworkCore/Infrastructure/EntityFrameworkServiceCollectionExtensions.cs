@@ -4,6 +4,7 @@
 using System;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal.Events;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions.Internal;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -90,6 +91,7 @@ namespace Microsoft.EntityFrameworkCore.Infrastructure
                 .AddSingleton<IModelCustomizer, ModelCustomizer>()
                 .AddSingleton<IModelCacheKeyFactory, ModelCacheKeyFactory>()
                 .AddSingleton<ILoggerFactory, LoggerFactory>()
+                .AddScoped<LifecycleManager>()
                 .AddScoped<LoggingModelValidator>()
                 .AddScoped<IKeyPropagator, KeyPropagator>()
                 .AddScoped<INavigationFixer, NavigationFixer>()

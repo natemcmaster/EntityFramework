@@ -3,7 +3,9 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Linq;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal.Events;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 
@@ -14,7 +16,7 @@ namespace Microsoft.EntityFrameworkCore.Relational.Tests.TestUtilities.FakeProvi
         private readonly List<FakeDbConnection> _dbConnections = new List<FakeDbConnection>();
 
         public FakeRelationalConnection(IDbContextOptions options)
-            : base(options, new Logger<FakeRelationalConnection>(new LoggerFactory()))
+            : base(options, new Logger<FakeRelationalConnection>(new LoggerFactory()), new LifecycleManager(options, Enumerable.Empty<EventHandlerCollection>()))
         {
         }
 

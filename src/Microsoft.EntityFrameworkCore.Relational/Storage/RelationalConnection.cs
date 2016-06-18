@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal.Events;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Query.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
@@ -37,18 +38,24 @@ namespace Microsoft.EntityFrameworkCore.Storage
         private bool _openedInternally;
         private int? _commandTimeout;
         private readonly ILogger _logger;
+        private readonly LifecycleManager _lifecycleManager;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="IRelationalConnection"/> class.
         /// </summary>
         /// <param name="options"> The options for the context that this connection will be used with. </param>
         /// <param name="logger"> The logger to write to. </param>
-        protected RelationalConnection([NotNull] IDbContextOptions options, [NotNull] ILogger logger)
+        /// <param name="lifecycleManager"> The lifecycle manager</param>
+        protected RelationalConnection([NotNull] IDbContextOptions options, 
+            [NotNull] ILogger logger, 
+            [NotNull] LifecycleManager lifecycleManager)
         {
             Check.NotNull(options, nameof(options));
             Check.NotNull(logger, nameof(logger));
+            Check.NotNull(lifecycleManager, nameof(lifecycleManager));
 
             _logger = logger;
+            _lifecycleManager = lifecycleManager;
 
             var relationalOptions = RelationalOptionsExtension.Extract(options);
 
@@ -277,6 +284,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 _connection.Value.Open();
+                _lifecycleManager.Trigger(new RelationalConnectionOpened(this, async: false));
                 _openedInternally = true;
             }
 
@@ -310,6 +318,7 @@ namespace Microsoft.EntityFrameworkCore.Storage
                             state.DataSource));
 
                 await _connection.Value.OpenAsync(cancellationToken);
+                _lifecycleManager.Trigger(new RelationalConnectionOpened(this, async: true));
                 _openedInternally = true;
             }
 

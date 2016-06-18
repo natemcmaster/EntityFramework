@@ -169,6 +169,14 @@
     <Compile Include="Infrastructure\DbContextFactoryOptions.cs" />
     <Compile Include="Infrastructure\DesignTimeProviderServicesAttribute.cs" />
     <Compile Include="Infrastructure\EntityFrameworkServiceCollectionExtensions.cs" />
+    <Compile Include="Infrastructure\Internal\Events\DbContextEvent.cs" />
+    <Compile Include="Infrastructure\Internal\Events\DelegateDbContextEventHandler.cs" />
+    <Compile Include="Infrastructure\Internal\Events\DelegateEventHandler.cs" />
+    <Compile Include="Infrastructure\Internal\Events\EventHandlerCollection.cs" />
+    <Compile Include="Infrastructure\Internal\Events\EventHandlerCollectionBuilder.cs" />
+    <Compile Include="Infrastructure\Internal\Events\EventHandlerCollectionExtensions.cs" />
+    <Compile Include="Infrastructure\Internal\Events\LifecycleManager.cs" />
+    <Compile Include="Infrastructure\Internal\Events\IEventHandler.cs" />
     <Compile Include="Infrastructure\IAccessor.cs" />
     <Compile Include="Infrastructure\IAnnotatable.cs" />
     <Compile Include="Infrastructure\IAnnotation.cs" />
@@ -179,6 +187,7 @@
     <Compile Include="Infrastructure\IModelCacheKeyFactory.cs" />
     <Compile Include="Infrastructure\IModelCustomizer.cs" />
     <Compile Include="Infrastructure\IModelSource.cs" />
+    <Compile Include="Infrastructure\Internal\Events\DbContextOptionsExtensions.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger.cs" />
     <Compile Include="Infrastructure\ISensitiveDataLogger`.cs" />
     <Compile Include="Infrastructure\ModelCacheKey.cs" />
