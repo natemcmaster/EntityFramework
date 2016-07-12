@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Reflection;
+using System;
 
 namespace PortableApp
 {
@@ -13,6 +16,8 @@ namespace PortableApp
     {
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
+            Console.WriteLine("Executor json version" + typeof(JsonConvert).GetTypeInfo().Assembly.GetName().Version);
+
             options.UseSqlite("Filename=./test.db");
         }
         

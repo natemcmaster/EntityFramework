@@ -10,7 +10,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
 {
     public class BuildCommandFactory
     {
-        public static ICommand Create(
+        public static Microsoft.DotNet.Cli.Utils.ICommand Create(
                [NotNull] string project,
                [NotNull] string configuration,
                [NotNull] NuGetFramework framework,

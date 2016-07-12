@@ -6,6 +6,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+#if NET451
+using System.Runtime.Serialization;
+#endif
 using Microsoft.Extensions.CommandLineUtils;
 using Microsoft.EntityFrameworkCore.Tools.Internal;
 
@@ -36,6 +39,27 @@ namespace Microsoft.EntityFrameworkCore.Tools
                     return 2;
                 }
 
+                if (!string.IsNullOrEmpty(options.DispatcherVersion)
+                    && !string.Equals(options.DispatcherVersion, GetVersion(), StringComparison.Ordinal))
+                {
+                    Reporter.Output($"Expected dispatch version {GetVersion()} but received {options.DispatcherVersion}");
+                    Reporter.Error("Could not invoke command.");
+                    return 3;
+                }
+
+                if (string.IsNullOrEmpty(options.Assembly))
+                {
+                    Reporter.Error("Missing required option --assembly");
+                    Reporter.Output("Specify --help for a list of available options and commands.");
+                    return 1;
+                }
+
+                if (!File.Exists(options.Assembly))
+                {
+                    Reporter.Error($"Could not find assembly '{options.Assembly}'.");
+                    return 1;
+                }
+
                 if (options.Command == null)
                 {
                     Reporter.Error("Error in parsing command line arguments");
@@ -44,7 +68,16 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
                 using (var executor = GetExecutor(options))
                 {
-                    options.Command.Run(executor);
+                    var currentDirectory = Directory.GetCurrentDirectory();
+                    Directory.SetCurrentDirectory(executor.AppBasePath);
+                    try
+                    {
+                        options.Command.Run(executor);
+                    }
+                    finally
+                    {
+                        Directory.SetCurrentDirectory(currentDirectory);
+                    }
                 }
 
                 return 0;
@@ -68,13 +101,33 @@ namespace Microsoft.EntityFrameworkCore.Tools
 
         private static OperationExecutorBase GetExecutor(CommandLineOptions options)
         {
-            return new AssemblyLoadContextOperationExecutor(options.TargetProject, 
-                options.StartupProject,
-                options.Configuration,
-                options.BuildBasePath,
-                options.BuildOutputPath, 
-                options.Framework, 
-                options.EnvironmentName, options.NoBuild);
+#if NET451
+            try
+            {
+                return new AppDomainOperationExecutor(
+                        configFile: options.AppConfigFile,
+                        assembly: options.Assembly,
+                        startupAssembly: options.StartupAssembly,
+                        projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
+                        dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
+                        contentRootPath: options.ContentRootPath,
+                        rootNamespace: options.RootNamespace,
+                        environment: options.EnvironmentName);
+            }
+            catch (SerializationException ex)
+            {
+                Reporter.Verbose("Creating app-domain executor failed. Reverting to reflection operation executor.");
+                Reporter.Verbose(ex.Message);
+            }
+#endif
+            return new ReflectionOperationExecutor(
+                   assembly: options.Assembly,
+                   startupAssembly: options.StartupAssembly,
+                   projectDir: options.ProjectDirectory ?? Directory.GetCurrentDirectory(),
+                   dataDirectory: options.DataDirectory ?? Directory.GetCurrentDirectory(),
+                   contentRootPath: options.ContentRootPath,
+                   rootNamespace: options.RootNamespace,
+                   environment: options.EnvironmentName);
         }
 
 

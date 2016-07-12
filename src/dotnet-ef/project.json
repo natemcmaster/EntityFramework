@@ -10,13 +10,18 @@
     ],
     "xmlDoc": true,
     "compile": {
-      "include": "../Shared/*.cs"
+      "include": "../Shared/CodeAnnotations.cs"
+    },
+    "embed": {
+      "mappings": {
+        "Microsoft.EntityFrameworkCore.Tools.Properties.ToolsStrings": "Properties/ToolsStrings.resx"
+      }
     }
   },
   "dependencies": {
-    "Microsoft.EntityFrameworkCore.Design": "1.0.0-*",
     "Microsoft.DotNet.Cli.Utils": "1.0.0-*",
     "Microsoft.DotNet.ProjectModel": "1.0.0-*",
+    "System.Runtime.Loader": "4.0.0",
     "Microsoft.Extensions.CommandLineUtils": "1.1.0-*",
     "Microsoft.NETCore.App": {
       "version": "1.0.0-*",
