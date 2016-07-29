@@ -37,7 +37,6 @@ namespace Microsoft.EntityFrameworkCore.Design
 
             var unwrappedLogHandler = ForwardingProxy.Unwrap<IOperationLogHandler>(logHandler);
             var loggerProvider = new LoggerProvider(name => new CommandLoggerAdapter(name, unwrappedLogHandler));
-
             var targetName = (string)args["targetName"];
             var startupTargetName = (string)args["startupTargetName"];
             var environment = (string)args["environment"];
