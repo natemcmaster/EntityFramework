@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,9 +13,12 @@ using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations.Internal;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Utilities;
 using Microsoft.Extensions.Logging;
+using Path = System.IO.Path;
+using SearchOption = System.IO.SearchOption;
 
 namespace Microsoft.EntityFrameworkCore.Migrations.Design
 {
@@ -31,6 +33,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         private readonly IHistoryRepository _historyRepository;
         private readonly LazyRef<ILogger> _logger;
         private readonly string _activeProvider;
+        private readonly IFileService _fileService;
 
         public MigrationsScaffolder(
             [NotNull] ICurrentDbContext currentContext,
@@ -41,7 +44,8 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             [NotNull] MigrationsCodeGenerator migrationCodeGenerator,
             [NotNull] IHistoryRepository historyRepository,
             [NotNull] ILoggerFactory loggerFactory,
-            [NotNull] IDatabaseProviderServices providerServices)
+            [NotNull] IDatabaseProviderServices providerServices,
+            [NotNull] IFileService fileService)
         {
             Check.NotNull(currentContext, nameof(currentContext));
             Check.NotNull(model, nameof(model));
@@ -52,6 +56,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             Check.NotNull(historyRepository, nameof(historyRepository));
             Check.NotNull(loggerFactory, nameof(loggerFactory));
             Check.NotNull(providerServices, nameof(providerServices));
+            Check.NotNull(fileService, nameof(fileService));
 
             _contextType = currentContext.Context.GetType();
             _model = model;
@@ -62,6 +67,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             _historyRepository = historyRepository;
             _logger = new LazyRef<ILogger>(loggerFactory.CreateCommandsLogger);
             _activeProvider = providerServices.InvariantName;
+            _fileService = fileService;
         }
 
         public virtual ScaffoldedMigration ScaffoldMigration(
@@ -230,7 +236,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     if (migrationFile != null)
                     {
                         _logger.Value.LogInformation(DesignStrings.RemovingMigration(migration.GetId()));
-                        File.Delete(migrationFile);
+                        _fileService.Delete(migrationFile);
                         files.MigrationFile = migrationFile;
                     }
                     else
@@ -243,7 +249,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                     var migrationMetadataFile = TryGetProjectFile(projectDir, migrationMetadataFileName);
                     if (migrationMetadataFile != null)
                     {
-                        File.Delete(migrationMetadataFile);
+                        _fileService.Delete(migrationMetadataFile);
                         files.MetadataFile = migrationMetadataFile;
                     }
                     else
@@ -269,7 +275,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 if (modelSnapshotFile != null)
                 {
                     _logger.Value.LogInformation(DesignStrings.RemovingSnapshot);
-                    File.Delete(modelSnapshotFile);
+                    _fileService.Delete(modelSnapshotFile);
                     files.SnapshotFile = modelSnapshotFile;
                 }
                 else
@@ -296,7 +302,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
                 }
 
                 _logger.Value.LogInformation(DesignStrings.RevertingSnapshot);
-                File.WriteAllText(modelSnapshotFile, modelSnapshotCode, Encoding.UTF8);
+                _fileService.WriteFile(modelSnapshotFile, modelSnapshotCode);
             }
 
             return files;
@@ -319,13 +325,13 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
             var modelSnapshotFile = Path.Combine(modelSnapshotDirectory, modelSnapshotFileName);
 
             _logger.Value.LogDebug(DesignStrings.WritingMigration(migrationFile));
-            Directory.CreateDirectory(migrationDirectory);
-            File.WriteAllText(migrationFile, migration.MigrationCode, Encoding.UTF8);
-            File.WriteAllText(migrationMetadataFile, migration.MetadataCode, Encoding.UTF8);
+            _fileService.CreateDirectory(migrationDirectory);
+            _fileService.WriteFile(migrationFile, migration.MigrationCode);
+            _fileService.WriteFile(migrationMetadataFile, migration.MetadataCode);
 
             _logger.Value.LogDebug(DesignStrings.WritingSnapshot(modelSnapshotFile));
-            Directory.CreateDirectory(modelSnapshotDirectory);
-            File.WriteAllText(modelSnapshotFile, migration.SnapshotCode, Encoding.UTF8);
+            _fileService.CreateDirectory(modelSnapshotDirectory);
+            _fileService.WriteFile(modelSnapshotFile, migration.SnapshotCode);
 
             return new MigrationFiles
             {
@@ -380,7 +386,7 @@ namespace Microsoft.EntityFrameworkCore.Migrations.Design
         }
 
         protected virtual string TryGetProjectFile([NotNull] string projectDir, [NotNull] string fileName) =>
-            Directory.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
+            _fileService.EnumerateFiles(projectDir, fileName, SearchOption.AllDirectories).FirstOrDefault();
 
         private bool ContainsForeignMigrations(string migrationsNamespace)
             => (from t in _migrationsAssembly.Assembly.GetConstructableTypes()

@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
-using System.IO;
+using Path = System.IO.Path;
 
 namespace Microsoft.EntityFrameworkCore.Design
 {

@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.EntityFrameworkCore.Scaffolding.Configuration.Internal;
 using Microsoft.EntityFrameworkCore.Utilities;
+using Path = System.IO.Path;
 
 namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 {
@@ -65,10 +66,11 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
             var generatedCode = DbContextWriter.WriteCode(modelConfiguration);
 
+            FileService.CreateDirectory(outputPath);
             // output DbContext .cs file
             var dbContextFileName = dbContextClassName + FileExtension;
-            var dbContextFileFullPath = FileService.OutputFile(
-                outputPath, dbContextFileName, generatedCode);
+            var dbContextFileFullPath = Path.Combine(outputPath, dbContextFileName);
+            FileService.WriteFile(dbContextFileFullPath, generatedCode);
             resultingFiles.ContextFile = dbContextFileFullPath;
 
             foreach (var entityConfig in modelConfiguration.EntityConfigurations)
@@ -77,8 +79,8 @@ namespace Microsoft.EntityFrameworkCore.Scaffolding.Internal
 
                 // output EntityType poco .cs file
                 var entityTypeFileName = entityConfig.EntityType.DisplayName() + FileExtension;
-                var entityTypeFileFullPath = FileService.OutputFile(
-                    outputPath, entityTypeFileName, generatedCode);
+                var entityTypeFileFullPath = Path.Combine(outputPath, entityTypeFileName);
+                FileService.WriteFile(entityTypeFileFullPath, generatedCode);
                 resultingFiles.EntityTypeFiles.Add(entityTypeFileFullPath);
             }
 

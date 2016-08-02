@@ -1,6 +1,7 @@
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Microsoft.EntityFrameworkCore.Scaffolding.Internal;
@@ -50,9 +51,32 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
             return contents;
         }
 
-        public virtual string OutputFile(string directoryName,
-            string fileName, string contents)
+        public void CreateDirectory(string path)
         {
+            if (!_nameToContentMap.ContainsKey(path))
+            {
+                _nameToContentMap[path] = new Dictionary<string, string>();
+            }
+        }
+
+        public void Delete(string path)
+        {
+            var directory = Path.GetDirectoryName(path);
+            var fileName = Path.GetFileName(path);
+            if (!FileExists(directory, fileName))
+                return;
+
+            _nameToContentMap[directory].Remove(fileName);
+        }
+
+        public IEnumerable<string> EnumerateFiles(string path, string searchPattern, SearchOption searchOption)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual void WriteFile(string path, string contents)
+        {
+            var directoryName = Path.GetDirectoryName(path);
             Dictionary<string, string> filesMap;
             if (!_nameToContentMap.TryGetValue(directoryName, out filesMap))
             {
@@ -60,9 +84,8 @@ namespace Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.Re
                 _nameToContentMap[directoryName] = filesMap;
             }
 
+            var fileName = Path.GetFileName(path);
             filesMap[fileName] = contents;
-
-            return Path.Combine(directoryName, fileName);
         }
     }
 }
