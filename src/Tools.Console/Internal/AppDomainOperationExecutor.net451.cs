@@ -16,27 +16,24 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
         private readonly AppDomain _domain;
         private bool _disposed;
 
-        public AppDomainOperationExecutor([NotNull] string assembly,
-            [NotNull] string startupAssembly,
-            [NotNull] string projectDir,
-            [CanBeNull] string contentRootPath,
-            [CanBeNull] string dataDirectory,
-            [CanBeNull] string rootNamespace,
-            [CanBeNull] string environment,
+        public AppDomainOperationExecutor(
+            [NotNull] OperationExecutorSetup setupInfo,
             [CanBeNull] string configFile)
-            : base(assembly, startupAssembly, projectDir, contentRootPath, dataDirectory, rootNamespace, environment)
+            : base(setupInfo)
         {
             var info = new AppDomainSetup
             {
-                ApplicationBase = AppBasePath,
+                ApplicationBase = setupInfo.ApplicationBasePath,
                 ConfigurationFile = configFile
             };
 
+            Reporter.Verbose("Using app base path " + setupInfo.ApplicationBasePath);
+
             _domain = AppDomain.CreateDomain("EntityFrameworkCore.DesignDomain", null, info);
 
-            if (!string.IsNullOrEmpty(dataDirectory))
+            if (!string.IsNullOrEmpty(setupInfo.DataDirectory))
             {
-                _domain.SetData("DataDirectory", dataDirectory);
+                _domain.SetData("DataDirectory", setupInfo.DataDirectory);
             }
 
             var logHandler = new OperationLogHandler(
@@ -56,12 +53,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                     logHandler,
                     new Hashtable
                     {
-                        { "targetName", AssemblyFileName },
-                        { "startupTargetName", StartupAssemblyFileName },
-                        { "projectDir", ProjectDirectory },
-                        { "contentRootPath", ContentRootPath },
-                        { "rootNamespace", RootNamespace },
-                        { "environment", EnvironmentName }
+                        { "targetName", setupInfo.AssemblyName },
+                        { "startupTargetName", setupInfo.StartupAssemblyName },
+                        { "projectDir", setupInfo.ProjectDir },
+                        { "contentRootPath", setupInfo.ContentRootPath },
+                        { "rootNamespace", setupInfo.RootNamespace },
+                        { "environment", setupInfo.EnvironmentName }
                     }
                 },
                 null, null);

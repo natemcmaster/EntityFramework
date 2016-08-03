@@ -19,9 +19,9 @@
       <group targetFramework=".NETCoreApp1.0">
         <dependency id="Microsoft.DotNet.Cli.Utils" version="$dotnetcliutils$" />
         <dependency id="Microsoft.DotNet.ProjectModel" version="$projectmodel$" />
-        <dependency id="Microsoft.Extensions.CommandLineUtils" version="$cliutils$" />
         <dependency id="Microsoft.NETCore.App" version="$netcoreapp$" />
         <dependency id="Microsoft.EntityFrameworkCore.Design" version="$version$" />
+        <dependency id="Microsoft.Extensions.CommandLineUtils" version="$cliutils$" />
       </group>
     </dependencies>
   </metadata>
@@ -32,5 +32,6 @@
     <file src="..\Tools.Console\bin\$configuration$\net451\*.exe" target="tools\net451\" />
     <file src="..\Tools.Console\bin\$configuration$_x86\net451\*.exe" target="tools\net451\" />
     <file src="..\Tools.Console\bin\$configuration$\netcoreapp1.0\ef.dll" target="tools\netcoreapp1.0\" />
+    <file src="..\Tools.Console\bin\$configuration$\netcoreapp1.0\ef.runtimeconfig.json" target="tools\netcoreapp1.0\" />
   </files>
 </package>

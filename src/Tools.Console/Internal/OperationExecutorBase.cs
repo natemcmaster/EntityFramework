@@ -17,43 +17,16 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
         protected const string OperationExceptionTypeName = "Microsoft.EntityFrameworkCore.Design.OperationException";
 
         public static IDictionary EmptyArguments = new Dictionary<string, object>();
-        public virtual string AppBasePath { get; }
 
-        protected string AssemblyFileName { get; set; }
-        protected string StartupAssemblyFileName { get; set; }
-        protected virtual string ContentRootPath { get; }
-        protected virtual string ProjectDirectory { get; }
-        protected virtual string RootNamespace { get; }
-        protected virtual string EnvironmentName { get; }
+        public virtual OperationExecutorSetup SetupInformation { get; }
 
-        protected OperationExecutorBase([NotNull] string assembly,
-            [NotNull] string startupAssembly,
-            [NotNull] string projectDir,
-            [CanBeNull] string contentRootPath,
-            [CanBeNull] string dataDirectory,
-            [CanBeNull] string rootNamespace,
-            [CanBeNull] string environment)
+        protected OperationExecutorBase(OperationExecutorSetup setupInfo)
         {
-            AssemblyFileName = Path.GetFileNameWithoutExtension(assembly);
-            StartupAssemblyFileName = string.IsNullOrWhiteSpace(startupAssembly)
-                ? AssemblyFileName
-                : Path.GetFileNameWithoutExtension(startupAssembly);
+            SetupInformation = setupInfo;
 
-            AppBasePath = Path.GetDirectoryName(assembly);
-            if (!Path.IsPathRooted(AppBasePath))
+            if (!string.IsNullOrEmpty(SetupInformation.DataDirectory))
             {
-                AppBasePath = Path.Combine(Directory.GetCurrentDirectory(), AppBasePath);
-            }
-            Reporter.Verbose("Setting app base path " + AppBasePath);
-
-            ContentRootPath = contentRootPath ?? AppBasePath;
-            RootNamespace = rootNamespace ?? AssemblyFileName;
-            ProjectDirectory = projectDir;
-            EnvironmentName = environment;
-
-            if (!string.IsNullOrEmpty(dataDirectory))
-            {
-                Environment.SetEnvironmentVariable(DataDirEnvName, dataDirectory);
+                Environment.SetEnvironmentVariable(DataDirEnvName, setupInfo.DataDirectory);
             }
         }
 

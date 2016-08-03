@@ -12,7 +12,19 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
     public class ReflectionOperationExecutorTest : OperationExecutorTestBase
     {
         protected override IOperationExecutor CreateExecutorFromBuildResult(BuildFileResult build, string rootNamespace = null) 
-            => new ReflectionOperationExecutor(build.TargetPath, build.TargetPath, build.TargetDir, build.TargetDir, build.TargetDir, rootNamespace, environment: null);
+        {
+            var setupInfo = new OperationExecutorSetup
+            {
+                AssemblyName = build.TargetName,
+                StartupAssemblyName = build.TargetName,
+                ContentRootPath = build.TargetDir,
+                DataDirectory = build.TargetDir,
+                ProjectDir = build.TargetDir,
+                RootNamespace = rootNamespace,
+            };
+
+            return new ReflectionOperationExecutor(setupInfo);
+        }
     }
 }
 #endif

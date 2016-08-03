@@ -18,14 +18,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
         private const string ResultHandlerTypeName = "Microsoft.EntityFrameworkCore.Design.OperationResultHandler";
         private readonly Type _resultHandlerType;
 
-        public ReflectionOperationExecutor([NotNull] string assembly,
-            [NotNull] string startupAssembly,
-            [NotNull] string projectDir,
-            [CanBeNull] string contentRootPath,
-            [CanBeNull] string dataDirectory,
-            [CanBeNull] string rootNamespace,
-            [CanBeNull] string environment)
-            : base(assembly, startupAssembly, projectDir, contentRootPath, dataDirectory, rootNamespace, environment)
+        public ReflectionOperationExecutor([NotNull] OperationExecutorSetup setupInfo)
+            : base(setupInfo)
         {
             _commandsAssembly = Assembly.Load(new AssemblyName { Name = DesignAssemblyName });
             var logHandlerType = _commandsAssembly.GetType(LogHandlerTypeName, throwOnError: true, ignoreCase: false);
@@ -44,12 +38,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.Internal
                 logHandler,
                 new Dictionary<string, string>
                 {
-                    { "targetName", AssemblyFileName },
-                    { "startupTargetName", StartupAssemblyFileName },
-                    { "projectDir", ProjectDirectory },
-                    { "contentRootPath", ContentRootPath },
-                    { "rootNamespace", RootNamespace },
-                    { "environment", EnvironmentName }
+                    { "targetName", setupInfo.AssemblyName },
+                    { "startupTargetName", setupInfo.StartupAssemblyName },
+                    { "projectDir", setupInfo.ProjectDir },
+                    { "contentRootPath", setupInfo.ContentRootPath },
+                    { "rootNamespace", setupInfo.RootNamespace },
+                    { "environment", setupInfo.EnvironmentName }
                 });
 
             _resultHandlerType = _commandsAssembly.GetType(ResultHandlerTypeName, throwOnError: true, ignoreCase: false);

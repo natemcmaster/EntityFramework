@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.EntityFrameworkCore.Tools.Internal;
 using Microsoft.Extensions.CommandLineUtils;
 
 namespace Microsoft.EntityFrameworkCore.Tools
@@ -62,7 +63,7 @@ namespace Microsoft.EntityFrameworkCore.Tools
                 using (var executor = new OperationExecutorFactory().Create(options))
                 {
                     var currentDirectory = Directory.GetCurrentDirectory();
-                    Directory.SetCurrentDirectory(executor.AppBasePath);
+                    Directory.SetCurrentDirectory(executor.SetupInformation.ApplicationBasePath);
                     try
                     {
                         options.Command.Run(executor);

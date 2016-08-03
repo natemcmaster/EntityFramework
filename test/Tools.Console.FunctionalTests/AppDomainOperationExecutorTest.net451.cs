@@ -5,7 +5,6 @@
 using System;
 using System.IO;
 using System.Reflection;
-using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Relational.Design.Specification.Tests.TestUtilities;
 using Microsoft.EntityFrameworkCore.Tools.Internal;
 using Xunit;
@@ -14,22 +13,33 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
 {
     public class AppDomainOperationExecutorTest : OperationExecutorTestBase
     {
-        protected override IOperationExecutor CreateExecutorFromBuildResult(BuildFileResult build, string rootNamespace = null) 
-            => new AppDomainOperationExecutor(build.TargetPath,
-                build.TargetPath, 
-                build.TargetDir,
-                build.TargetDir, 
-                build.TargetDir, 
-                rootNamespace, 
-                environment: null, 
-                configFile: null);
+        protected override IOperationExecutor CreateExecutorFromBuildResult(BuildFileResult build, string rootNamespace = null)
+        {
+            var setupInfo = new OperationExecutorSetup
+            {
+                AssemblyName = build.TargetName,
+                StartupAssemblyName = build.TargetName,
+                ContentRootPath = build.TargetDir,
+                DataDirectory = build.TargetDir,
+                ProjectDir = build.TargetDir,
+                RootNamespace = rootNamespace,
+            };
 
+            return new AppDomainOperationExecutor(setupInfo, build.TargetDir, null);
+        }
 
         [Fact]
         public void Assembly_load_errors_are_wrapped()
         {
             var targetDir = AppDomain.CurrentDomain.BaseDirectory;
-            using (var executor = new AppDomainOperationExecutor(Assembly.GetExecutingAssembly().Location, Path.Combine(targetDir, "Unknown.dll"), targetDir, null, null, null, null, null))
+            var setupInfo = new OperationExecutorSetup
+            {
+                AssemblyName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location),
+                StartupAssemblyName = "Unknown",
+                ProjectDir = targetDir
+            };
+
+            using (var executor = new AppDomainOperationExecutor(setupInfo, targetDir, null))
             {
                 Assert.Throws<OperationErrorException>(() => executor.GetContextTypes());
             }
