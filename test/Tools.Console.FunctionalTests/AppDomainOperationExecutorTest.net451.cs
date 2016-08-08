@@ -22,10 +22,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
                 ContentRootPath = build.TargetDir,
                 DataDirectory = build.TargetDir,
                 ProjectDir = build.TargetDir,
+                ApplicationBasePath = build.TargetDir,
                 RootNamespace = rootNamespace,
             };
 
-            return new AppDomainOperationExecutor(setupInfo, build.TargetDir, null);
+            return new AppDomainOperationExecutor(setupInfo,  null);
         }
 
         [Fact]
@@ -36,10 +37,10 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
             {
                 AssemblyName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location),
                 StartupAssemblyName = "Unknown",
-                ProjectDir = targetDir
+                ProjectDir = targetDir,
             };
 
-            using (var executor = new AppDomainOperationExecutor(setupInfo, targetDir, null))
+            using (var executor = new AppDomainOperationExecutor(setupInfo, null))
             {
                 Assert.Throws<OperationErrorException>(() => executor.GetContextTypes());
             }

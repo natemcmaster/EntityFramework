@@ -189,23 +189,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.FunctionalTests
                             }" }
                 };
                 var build = source.Build();
+                var setupInfo = new OperationExecutorSetup
+                {
+                    AssemblyName = build.TargetName,
+                    StartupAssemblyName = build.TargetName,
+                    ProjectDir = build.TargetDir,
+                    DataDirectory = build.TargetDir,
+                    ContentRootPath = build.TargetDir,
+                    ApplicationBasePath = build.TargetDir,
+                    RootNamespace = "SimpleProject"
+                };
 #if NET451
-                Executor = new AppDomainOperationExecutor(build.TargetPath,
-                    build.TargetPath,
-                    build.TargetDir,
-                    build.TargetDir,
-                    build.TargetDir,
-                    "SimpleProject",
-                    null,
-                    AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
+                Executor = new AppDomainOperationExecutor(setupInfo, AppDomain.CurrentDomain.SetupInformation.ConfigurationFile);
 #else
-                Executor = new ReflectionOperationExecutor(build.TargetPath,
-                    build.TargetPath,
-                    build.TargetDir,
-                    build.TargetDir,
-                    build.TargetDir,
-                    "SimpleProject",
-                    null);
+                Executor = new ReflectionOperationExecutor(setupInfo);
 #endif
             }
 

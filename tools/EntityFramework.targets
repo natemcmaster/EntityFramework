@@ -170,9 +170,6 @@
     </Task>
   </UsingTask>
   <Target Name="GenerateProjectLockTargets">
-    <PropertyGroup>
-       <NuGetPackagesDirectory>
-    </PropertyGroup>
     <GenerateProjectLockTargets NuGetPackagesDirectory="$(NuGetPackagesDirectory)"
                                 NuGetTarget="$(NuGetTarget)"
                                 ProjectLockFile="$(ProjectLockFile)"

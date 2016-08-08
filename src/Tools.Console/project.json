@@ -42,6 +42,7 @@
       "buildOptions": {
         "compile": {
           "include": [
+          	"**/*.cs",
             "../Shared/CodeAnnotations.cs",
             "../Tools.Shared/CommandLineApplicationExtensions.cs",
             "../Tools.Shared/OperationHandlers.cs"
@@ -51,14 +52,17 @@
     },
     "netcoreapp1.0": {
       "dependencies": {
+        "Microsoft.Extensions.DependencyModel": "1.0.1-*",
+        "System.Runtime.Loader": "4.0.0",
         "Microsoft.NETCore.App": {
           "type": "platform",
-          "version": "1.0.0-*"
+          "version": "1.0.0"
         }
       },
       "buildOptions": {
         "compile": {
           "include": [
+          	"**/*.cs",
             "../Shared/CodeAnnotations.cs",
             "../Tools.Shared/CommandLineApplicationExtensions.cs"
           ]
