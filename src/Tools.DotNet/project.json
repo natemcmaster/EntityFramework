@@ -8,7 +8,7 @@
     "nowarn": [
       "CS1591"
     ],
-    "xmlDoc": true,
+    "xmlDoc": false,
     "compile": {
       "include": [
         "../Shared/*.cs",
@@ -33,7 +33,8 @@
     "Microsoft.NETCore.App": {
       "version": "1.0.0-*",
       "type": "platform"
-    }
+    },
+    "System.Runtime.Loader": "4.0.0"
   },
   "frameworks": {
     "netcoreapp1.0": {}

@@ -13,36 +13,45 @@ using NuGet.Frameworks;
 
 namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
-    public class EfConsoleCommandSpecFactory
+    public class EfConsoleExecutionStrategyFactory
     {
         private readonly EfConsoleCommandResolver _resolver;
 
-        public EfConsoleCommandSpecFactory([NotNull] EfConsoleCommandResolver resolver)
+        public EfConsoleExecutionStrategyFactory([NotNull] EfConsoleCommandResolver resolver)
         {
             _resolver = resolver;
         }
 
-        public virtual CommandSpec Create(IProjectContext startupProject, IProjectContext targetProject, bool verbose, IEnumerable<string> additionalArguments)
+        public virtual IExecutionStrategy Create(IProjectContext startupProject, IProjectContext targetProject, bool verbose, IEnumerable<string> additionalArguments)
         {
             if (startupProject.IsClassLibrary)
             {
-                throw new OperationErrorException(ToolsDotNetStrings.ClassLibrariesNotSupported(startupProject.ProjectName));
+                if (!NuGetFrameworkUtility.IsCompatibleWithFallbackCheck(startupProject.TargetFramework, FrameworkConstants.CommonFrameworks.NetCoreApp10))
+                {
+                    throw new OperationErrorException("dotnet-ef cannot load this class library project because it is not compatible with .NET Core");
+                }
+
+                return CreateLoadContextStrategy(startupProject, targetProject, verbose, additionalArguments);
             }
+            else
+            {
+                return CreateProcessStrategy(startupProject, targetProject, verbose, additionalArguments);
+            }
+        }
 
-            var targetAssembly = targetProject.ProjectFullPath.Equals(startupProject.ProjectFullPath)
-                ? startupProject.AssemblyFullPath
-                // This assumes the target assembly is present in the startup project context build output folder
-                : Path.Combine(startupProject.TargetDirectory, Path.GetFileName(targetProject.AssemblyFullPath));
+        private IExecutionStrategy CreateLoadContextStrategy(IProjectContext startupProject, IProjectContext targetProject, bool verbose, IEnumerable<string> additionalArguments)
+        {
+            var loadContext = startupProject.CreateLoadContext();
+            var args = CreateArgs(startupProject, targetProject, verbose)
+                .Concat(additionalArguments)
+                .ToArray();
+            return new LoadContextExecutionStrategy(loadContext, args);
+        }
 
-            var args = CreateArgs(
-                assembly: targetAssembly,
-                startupAssembly: startupProject.AssemblyFullPath,
-                dataDir: startupProject.TargetDirectory,
-                contentRootPath: Path.GetDirectoryName(startupProject.ProjectFullPath),
-                projectDir: Path.GetDirectoryName(targetProject.ProjectFullPath),
-                rootNamespace: targetProject.RootNamespace,
-                verbose: verbose);
-
+        private IExecutionStrategy CreateProcessStrategy(IProjectContext startupProject, IProjectContext targetProject, bool verbose, IEnumerable<string> additionalArguments)
+        {
+            var args = CreateArgs(startupProject, targetProject, verbose);
+            CommandSpec commandSpec;
             if (startupProject.TargetFramework.IsDesktop())
             {
                 if (startupProject.Config != null)
@@ -50,11 +59,15 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
                     args = args.Concat(new [] { ConfigOptionTemplate, startupProject.Config });
                 }
                 args = args.Concat(additionalArguments);
-                return ResolveDesktopCommand(startupProject, args);
+                commandSpec = ResolveDesktopCommand(startupProject, args);
+            }
+            else
+            {
+                args = args.Concat(additionalArguments);
+                commandSpec = ResolveDotNetCommand(startupProject, args);
             }
 
-            args = args.Concat(additionalArguments);
-            return ResolveDotNetCommand(startupProject, args);
+            return new ProcessExecutionStrategy(commandSpec);
         }
 
         private CommandSpec ResolveDesktopCommand(IProjectContext startupProject, IEnumerable<string> args)
@@ -101,26 +114,26 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         private const string ContentRootPathOptionTemplate = "--content-root-path";
         private const string RootNamespaceOptionTemplate = "--root-namespace";
         private const string VerboseOptionTemplate = "--verbose";
+        private IEnumerable<string> CreateArgs(IProjectContext startupProject, IProjectContext targetProject, bool verbose)
+        {
+            var targetAssembly = targetProject.ProjectFullPath.Equals(startupProject.ProjectFullPath)
+                ? startupProject.AssemblyFullPath
+                // This assumes the target assembly is present in the startup project context build output folder
+                : Path.Combine(startupProject.TargetDirectory, Path.GetFileName(targetProject.AssemblyFullPath));
 
-        private static IEnumerable<string> CreateArgs(
-            [NotNull] string assembly,
-            [NotNull] string startupAssembly,
-            [NotNull] string dataDir,
-            [NotNull] string projectDir,
-            [NotNull] string contentRootPath,
-            [NotNull] string rootNamespace,
-            bool verbose)
-            => new[]
+            return new[]
             {
-                AssemblyOptionTemplate, Check.NotEmpty(assembly, nameof(assembly)),
-                StartupAssemblyOptionTemplate, Check.NotEmpty(startupAssembly, nameof(startupAssembly)),
-                DataDirectoryOptionTemplate, Check.NotEmpty(dataDir, nameof(dataDir)),
-                ProjectDirectoryOptionTemplate, Check.NotEmpty(projectDir, nameof(projectDir)),
-                ContentRootPathOptionTemplate, Check.NotEmpty(contentRootPath, nameof(contentRootPath)),
-                RootNamespaceOptionTemplate, Check.NotEmpty(rootNamespace, nameof(rootNamespace)),
+                AssemblyOptionTemplate, targetAssembly,
+                StartupAssemblyOptionTemplate, startupProject.AssemblyFullPath,
+                DataDirectoryOptionTemplate,startupProject.TargetDirectory,
+                ProjectDirectoryOptionTemplate, Path.GetDirectoryName(targetProject.ProjectFullPath),
+                ContentRootPathOptionTemplate, Path.GetDirectoryName(startupProject.ProjectFullPath),
+                RootNamespaceOptionTemplate, targetProject.RootNamespace,
             }
             .Concat(verbose
                 ? new[] { VerboseOptionTemplate }
                 : Enumerable.Empty<string>());
+        }
+
     }
 }

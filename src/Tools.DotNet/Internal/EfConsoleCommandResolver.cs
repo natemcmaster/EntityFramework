@@ -25,6 +25,9 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
                 ? CreateDesktopCommandSpec(arguments)
                 : CreateNetCoreCommandSpec(arguments);
 
+        public string FindEfCoreLibrary()
+            => Path.Combine(NetCoreToolDir, "ef" + FileNameSuffixes.DotNet.DynamicLib);
+
         private CommandSpec CreateNetCoreCommandSpec(ResolverArguments arguments)
         {
             Check.NotEmpty(arguments.RuntimeConfigJson, "RuntimeConfigJson");
@@ -46,7 +49,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
                 args.Add(arguments.NuGetPackageRoot);
             }
 
-            var commandPath = Path.Combine(NetCoreToolDir, "ef" + FileNameSuffixes.DotNet.DynamicLib);
+            var commandPath = FindEfCoreLibrary();
             args.Add(commandPath);
             args.AddRange(arguments.CommandArguments);
 
