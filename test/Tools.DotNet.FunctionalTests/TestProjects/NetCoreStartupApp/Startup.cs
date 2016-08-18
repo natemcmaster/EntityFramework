@@ -5,14 +5,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using NetStandardClassLibrary;
 
-namespace StartupForNetStandardClassLibrary
+namespace NetCoreStartupApp
 {
     public class Startup
     {
         public void ConfigureServices(IServiceCollection services)
         {
             services
-                .AddDbContext<NetStandardContext>(o => o.UseSqlite("Filename=./lib.db"));
+                .AddDbContext<NetStandardContext>(o => o.UseSqlite("Filename=./lib.db", b => b.MigrationsAssembly("NetCoreStartupApp")));
         }
 
         public void Configure(IApplicationBuilder app)

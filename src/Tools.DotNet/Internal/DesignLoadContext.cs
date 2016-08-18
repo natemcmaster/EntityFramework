@@ -12,7 +12,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
     internal sealed class DesignLoadContext : AssemblyLoadContext
     {
-        private readonly IDictionary<AssemblyName, string> _assemblyPaths;
+        private readonly IDictionary<string, string> _assemblyPaths;
         private readonly IDictionary<string, string> _nativeLibraries;
         private readonly IEnumerable<string> _searchPaths;
 
@@ -26,7 +26,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         };
 
 
-        static LoadContext()
+        static DesignLoadContext()
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
@@ -46,7 +46,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
             }
         }
 
-        public LoadContext(IDictionary<AssemblyName, string> assemblyPaths,
+        public DesignLoadContext(IDictionary<string, string> assemblyPaths,
                                   IDictionary<string, string> nativeLibraries,
                                   IEnumerable<string> searchPaths)
         {
@@ -58,7 +58,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         protected override Assembly Load(AssemblyName assemblyName)
         {
             string path;
-            if (_assemblyPaths.TryGetValue(assemblyName, out path) || SearchForLibrary(ManagedAssemblyExtensions, assemblyName.Name, out path))
+            if (SearchForLibrary(ManagedAssemblyExtensions, assemblyName.Name, out path) || _assemblyPaths.TryGetValue(assemblyName.Name, out path))
             {
                 return LoadFromAssemblyPath(path);
             }
@@ -69,7 +69,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         protected override IntPtr LoadUnmanagedDll(string unmanagedDllName)
         {
             string path;
-            if (_nativeLibraries.TryGetValue(unmanagedDllName, out path) || SearchForLibrary(NativeLibraryExtensions, unmanagedDllName, out path))
+            if (SearchForLibrary(NativeLibraryExtensions, unmanagedDllName, out path) || _nativeLibraries.TryGetValue(unmanagedDllName, out path))
             {
                 return LoadUnmanagedDllFromPath(path);
             }

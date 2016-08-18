@@ -22,16 +22,5 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
             AssertCommand.Fail(result);
             Assert.Contains(ToolsDotNetStrings.ClassLibrariesNotSupported("DesktopClassLibrary"), result.StdErr);
         }
-
-        [Fact]
-        public void Unsupported_MigrationsOnNetStandardClassLibrary()
-        {
-            var targetProject = Path.Combine(_fixture.TestProjectRoot, "NetStandardClassLibrary/project.json");
-
-            var result = new AddMigration(targetProject, "Initial", _output)
-                .ExecuteWithCapturedOutput();
-            AssertCommand.Fail(result);
-            Assert.Contains(ToolsDotNetStrings.ClassLibrariesNotSupported("NetStandardClassLibrary"), result.StdErr);
-        }
     }
 }

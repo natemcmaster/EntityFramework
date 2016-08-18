@@ -12,20 +12,20 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 {
     public class DispatchOperationExecutor
     {
-        private readonly EfConsoleCommandSpecFactory _commandSpecFactory;
+        private readonly EfConsoleExecutionStrategyFactory _executionStrategyFactory;
         private readonly ProjectContextFactory _projectFactory;
         private readonly IProjectBuilder _projectBuilder;
 
         public DispatchOperationExecutor(
             [NotNull] ProjectContextFactory projectFactory,
-            [NotNull] EfConsoleCommandSpecFactory commandSpecFactory,
+            [NotNull] EfConsoleExecutionStrategyFactory executionStrategyFactory,
             [NotNull] IProjectBuilder projectBuilder)
         {
             Check.NotNull(projectFactory, nameof(projectFactory));
-            Check.NotNull(commandSpecFactory, nameof(commandSpecFactory));
+            Check.NotNull(executionStrategyFactory, nameof(executionStrategyFactory));
             Check.NotNull(projectBuilder, nameof(projectBuilder));
 
-            _commandSpecFactory = commandSpecFactory;
+            _executionStrategyFactory = executionStrategyFactory;
             _projectFactory = projectFactory;
             _projectBuilder = projectBuilder;
         }
@@ -60,15 +60,11 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
             Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogDataDirectory(startupProject.TargetDirectory));
 
-            var commandSpec = _commandSpecFactory.Create(startupProject, targetProject, options.IsVerbose, options.RemainingArguments);
+            var strategy = _executionStrategyFactory.Create(startupProject, targetProject, options.IsVerbose, options.RemainingArguments);
 
             Reporter.Verbose.WriteLine(ToolsDotNetStrings.LogBeginDispatch(startupProject.ProjectName));
 
-            return Command.Create(commandSpec)
-                .ForwardStdErr()
-                .ForwardStdOut()
-                .Execute()
-                .ExitCode;
+            return strategy.Execute();
         }
     }
 }

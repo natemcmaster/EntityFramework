@@ -28,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet
 
                 return new DispatchOperationExecutor(
                     new ProjectContextFactory(), 
-                    new EfConsoleCommandSpecFactory(new EfConsoleCommandResolver()),
+                    new EfConsoleExecutionStrategyFactory(new EfConsoleCommandResolver()),
                     new DotNetProjectBuilder())
                     .Execute(options);
             }

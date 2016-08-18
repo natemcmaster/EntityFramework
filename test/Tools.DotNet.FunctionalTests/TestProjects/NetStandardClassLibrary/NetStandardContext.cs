@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace NetStandardClassLibrary
 {
@@ -13,5 +14,15 @@ namespace NetStandardClassLibrary
     {
         public int Id { get; set; }
         public string Title { get; set; }
+    }
+
+    public class NetStandardContextFactory : IDbContextFactory<NetStandardContext>
+    {
+        public NetStandardContext Create(DbContextFactoryOptions options)
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<NetStandardContext>();
+            optionsBuilder.UseSqlite("Filename=./test.db");
+            return new NetStandardContext(optionsBuilder.Options);
+        }
     }
 }

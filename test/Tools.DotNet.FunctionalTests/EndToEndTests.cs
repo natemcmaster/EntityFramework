@@ -41,6 +41,12 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
         }
 
         [Fact]
+        public void MigrationsOnNetStandardClassLibrary()
+        {
+            AddAndApplyMigrationImpl("NetStandardClassLibrary", "NetStandardContext", "initialLibrary");
+        }
+
+        [Fact]
         public void MigrationsOnMsBuildNetCoreConsoleApp()
         {
             AddAndApplyMigrationImpl("MsBuildNetCoreApp", "TestContext", "Initial");
@@ -87,15 +93,18 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.FunctionalTests
         public void MigrationCommandsForNetCoreApps(string project)
             => AddAndApplyMigrationImpl(project, "TestContext", "Initial");
 
+        private string GetProjectDir(string projectName)
+            => Path.Combine(_fixture.TestProjectRoot, projectName);
+
         private void AddAndApplyMigrationImpl(
             string targetProjectName,
             string contextName,
             string migrationName,
             string startupProjectName = null)
         {
-            var targetProject = Path.Combine(_fixture.TestProjectRoot, targetProjectName, "project.json");
+            var targetProject = Path.Combine(GetProjectDir(targetProjectName), "project.json");
             var startupProject = startupProjectName != null
-                ? Path.Combine(_fixture.TestProjectRoot, startupProjectName, "project.json")
+                ? Path.Combine(GetProjectDir(startupProjectName), "project.json")
                 : null;
 
             _output.WriteLine("Target dir = " + targetProject);

@@ -19,6 +19,8 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
 
         public EfConsoleExecutionStrategyFactory([NotNull] EfConsoleCommandResolver resolver)
         {
+            Check.NotNull(resolver, nameof(resolver));
+
             _resolver = resolver;
         }
 
@@ -26,7 +28,7 @@ namespace Microsoft.EntityFrameworkCore.Tools.DotNet.Internal
         {
             if (startupProject.IsClassLibrary)
             {
-                if (!NuGetFrameworkUtility.IsCompatibleWithFallbackCheck(startupProject.TargetFramework, FrameworkConstants.CommonFrameworks.NetCoreApp10))
+                if (!NuGetFrameworkUtility.IsCompatibleWithFallbackCheck(FrameworkConstants.CommonFrameworks.NetCoreApp10, startupProject.TargetFramework))
                 {
                     throw new OperationErrorException("dotnet-ef cannot load this class library project because it is not compatible with .NET Core");
                 }
