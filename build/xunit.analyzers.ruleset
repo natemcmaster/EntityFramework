@@ -1,0 +1,9 @@
+<RuleSet Name="Rules for EF Core" Description="Code analysis rules for EF Core projects" ToolsVersion="15.0">
+  <Rules AnalyzerId="xunit.analyzers" RuleNamespace="xunit.analyzers">
+    <Rule Id="xUnit1000" Action="Warning" />
+    <Rule Id="xUnit1003" Action="Warning" />
+    <Rule Id="xUnit1005" Action="Warning" />
+    <Rule Id="xUnit1010" Action="Warning" />
+    <Rule Id="xUnit2004" Action="Warning" />
+  </Rules>
+</RuleSet>

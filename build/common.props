@@ -9,9 +9,10 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/aspnet/EntityFramework.git</RepositoryUrl>
     <SignAssembly>True</SignAssembly>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <VersionSuffix Condition="'$(VersionSuffix)' != '' And '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
     <DebugType Condition="'$(Configuration)' == 'Debug' AND '$(OS)' == 'Windows_NT'">full</DebugType>
+     <CodeAnalysisRuleSet>$(MSBuildThisFileDirectory)xunit.analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="**\*.rd.xml" />
